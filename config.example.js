@@ -3,11 +3,13 @@
  * 
  * Yapılacaklar:
  * 1. Bu dosyayı "config.js" olarak kopyalayın.
- * 2. Kendi sunucu adresinizi veya geliştirme ortamınıza göre ayarları güncelleyin.
+ * 2. Kendi sunucu adresinizi üretim ortamı için güncelleyin.
  * 3. ENVIRONMENT değişkenini kullanım amacınıza göre değiştirin.
  * 
- * Not: config.js dosyası .gitignore'da yer alır ve GitHub'a gönderilmez.
- * Bu şekilde yerel geliştirme ayarlarınız gizli kalır.
+ * GÜVENLİK UYARISI:
+ * Bu dosya sadece örnek amaçlıdır. config.js dosyası .gitignore'da yer alır ve 
+ * GitHub'a gönderilmez. Bu, sunucu adreslerinizin gizli kalmasını sağlar.
+ * Gerçek sunucu adresinizi ASLA public bir repo'ya yüklemeyiniz!
  */
 
 // Sunucu adresleri (WebSocket)
@@ -19,18 +21,18 @@ const CONFIG = {
   
   // Test ortamı için sunucu adresi
   test: {
-    WS_SERVER: 'wss://test-server-url.example.com'
+    WS_SERVER: 'wss://YOUR_TEST_SERVER.example.com' // Kendi test sunucunuzu buraya girin
   },
   
   // Üretim ortamı için sunucu adresi
   production: {
-    WS_SERVER: 'wss://crunchyroll-watch-party-restless-grass-5027.fly.dev'
+    WS_SERVER: 'wss://YOUR_PRODUCTION_SERVER.example.com' // !!! Kendi üretim sunucu adresinizi buraya girin !!!
   }
 };
 
 // Aktif çalışma ortamını belirle
 // 'development', 'test' veya 'production' olabilir
-const ENVIRONMENT = 'production';
+const ENVIRONMENT = 'development'; // !!! Kullanmak istediğiniz ortamı belirtin !!!
 
 // Aktif ortama göre yapılandırmayı dışa aktar
 export const WS_SERVER = CONFIG[ENVIRONMENT].WS_SERVER;

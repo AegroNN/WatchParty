@@ -1,12 +1,16 @@
 // Background script - Crunchyroll Watch Party
 // Arka planda çalışacak ve partileri yönetecek
 
-// WebSocket sunucu adresini config.js dosyasından yükle
-import { WS_SERVER, ENV } from './config.js';
+// WebSocket sunucu adresini env.js dosyasından yükle
+import { WS_SERVER, ENV } from './env.js';
+
+// Aktif ortam ve websocket sunucu adresi
+let activeEnvironment = ENV();
+let activeServerAddress = WS_SERVER();
 
 // Ortam loglaması
-console.log('Aktif ortam:', ENV);
-console.log('WebSocket sunucu adresi:', WS_SERVER);
+console.log('Aktif ortam:', activeEnvironment);
+console.log('WebSocket sunucu adresi:', activeServerAddress);
 
 // Aktif parti oturumları
 const activeSessions = new Map();
@@ -346,12 +350,12 @@ function connectToServer(callback) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     console.log('WebSocket zaten bağlı, tekrar bağlanmaya gerek yok');
     // Bağlantı durumunu popup'a bildir
-    console.log(WS_SERVER)
+    console.log(activeServerAddress)
     chrome.runtime.sendMessage({
       action: 'connectionStatus',
       status: 'connected',
       serverInfo: {
-        url: WS_SERVER,
+        url: activeServerAddress,
         connectionTime: new Date().toISOString()
       }
     });
@@ -361,7 +365,7 @@ function connectToServer(callback) {
   }
   
   try {
-    console.log('WebSocket bağlantısı başlatılıyor: ' + WS_SERVER);
+    console.log('WebSocket bağlantısı başlatılıyor: ' + activeServerAddress);
     
     // Bağlantı başlama zamanını kaydet
     const connectionStartTime = new Date().toISOString();
@@ -371,7 +375,7 @@ function connectToServer(callback) {
       action: 'connectionStatus',
       status: 'connecting',
       serverInfo: {
-        url: WS_SERVER,
+        url: activeServerAddress,
         connectionStartTime: connectionStartTime
       }
     });
@@ -382,7 +386,7 @@ function connectToServer(callback) {
     }
     
     // Yeni bağlantı kur
-    socket = new WebSocket(WS_SERVER);
+    socket = new WebSocket(activeServerAddress);
     
     // Bağlantı açıldığında
     socket.onopen = () => {
@@ -396,7 +400,7 @@ function connectToServer(callback) {
         action: 'connectionStatus',
         status: 'connected',
         serverInfo: {
-          url: WS_SERVER,
+          url: activeServerAddress,
           connectionTime: connectionTime,
           connectionDuration: new Date() - new Date(connectionStartTime) + 'ms'
         }
@@ -442,7 +446,7 @@ function connectToServer(callback) {
         action: 'connectionStatus',
         status: 'disconnected',
         serverInfo: {
-          url: WS_SERVER,
+          url: activeServerAddress,
           code: event.code,
           reason: event.reason,
           disconnectionTime: new Date().toISOString()
@@ -463,7 +467,7 @@ function connectToServer(callback) {
         status: 'error',
         error: error.message,
         serverInfo: {
-          url: WS_SERVER,
+          url: activeServerAddress,
           errorTime: new Date().toISOString()
         }
       });
@@ -477,7 +481,7 @@ function connectToServer(callback) {
       status: 'error',
       error: error.message,
       serverInfo: {
-        url: WS_SERVER,
+        url: activeServerAddress,
         errorTime: new Date().toISOString()
       }
     });
