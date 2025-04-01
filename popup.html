@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="tr" style="height: auto; min-height: 300px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crunchyroll Watch Party</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Tema değişkenleri */
+      --primary-color: #E87C2B;
+      --primary-dark: #d25e0f;
+      --primary-light: #ff8c3e;
+      --accent-color: #3DB2BD;
+      --background-color: #202020;
+      --background-secondary: #2d2d2d;
+      --text-color: #f5f5f5;
+      --text-secondary: #bbbbbb;
+      --card-background: #333333;
+      --input-background: #444444;
+      --error-color: #F44336;
+      --success-color: #4CAF50;
+      --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      --heading-font: 'Bebas Neue', sans-serif;
+      --body-font: 'Roboto', Arial, sans-serif;
+      
+      /* Tekdüzen padding ve gap değerleri (4'ün katları) */
+      --padding-xs: 4px;
+      --padding-sm: 8px;
+      --padding-md: 12px;
+      --padding-lg: 16px;
+      --padding-xl: 20px;
+      --padding-xxl: 24px;
+      --gap-xs: 4px;
+      --gap-sm: 8px;
+      --gap-md: 12px;
+      --gap-lg: 16px;
+      --gap-xl: 20px;
+    }
+
+    body {
+      width: 360px;
+      margin: 0;
+      padding: var(--padding-md);
+      font-family: var(--body-font);
+      background-color: var(--background-color);
+      color: var(--text-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-sizing: border-box;
+      height: auto;
+      min-height: 300px;
+      transition: height 0.3s ease;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--background-secondary);
+      color: var(--text-color);
+      padding: var(--padding-md) var(--padding-lg);
+      margin-bottom: var(--padding-md);
+      border-radius: 8px;
+      box-shadow: var(--box-shadow);
+    }
+    
+    .header-title {
+      font-family: var(--heading-font);
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    
+    .header-username {
+      font-size: 16px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      text-align: right;
+      max-width: 160px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .header-username:hover {
+      color: var(--primary-color);
+    }
+
+    .main-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-md);
+      margin-top: var(--padding-lg);
+    }
+
+    .username-form {
+      display: none;
+      margin-top: var(--padding-lg);
+    }
+    
+    .username-form.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: var(--padding-md);
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: var(--padding-xs);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .party-screen {
+      display: none;
+    }
+    
+    .party-screen.active {
+      display: block;
+    }
+    
+    .party-info {
+      background-color: var(--card-background);
+      padding: var(--padding-lg);
+      border-radius: 8px;
+      margin-bottom: var(--padding-lg);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .party-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--padding-md);
+    }
+    
+    .party-code-value {
+      font-family: var(--heading-font);
+      font-size: 20px;
+      color: var(--primary-color);
+      letter-spacing: 1.5px;
+    }
+    
+    .party-name {
+      margin-bottom: var(--padding-md);
+    }
+    
+    .party-name-edit {
+      cursor: pointer;
+      color: var(--accent-color);
+      margin-left: var(--padding-xs);
+    }
+    
+    .party-members {
+      background-color: var(--background-secondary);
+      padding: var(--padding-md);
+      border-radius: 8px;
+      margin-top: var(--padding-lg);
+    }
+    
+    .party-members-title {
+      font-family: var(--heading-font);
+      font-size: 18px;
+      margin-bottom: var(--padding-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--gap-xs);
+    }
+    
+    .members-list {
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-xs);
+      padding: var(--padding-xs) 0;
+    }
+    
+    .member-item {
+      display: flex;
+      align-items: center;
+      padding: var(--padding-xs) var(--padding-sm);
+      gap: var(--gap-sm);
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .member-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .member-name {
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+    
+    .member-host-badge {
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 10px;
+      padding: 2px var(--padding-xs);
+      border-radius: 4px;
+      margin-left: var(--padding-xs);
+    }
+    
+    .member-you-badge {
+      background-color: var(--accent-color);
+      color: white;
+      font-size: 10px;
+      padding: 2px var(--padding-xs);
+      border-radius: 4px;
+      margin-left: var(--padding-xs);
+      box-shadow: 0 0 4px var(--accent-color);
+      animation: pulse-light 2s infinite;
+    }
+    
+    @keyframes pulse-light {
+      0% {
+        box-shadow: 0 0 0 0 rgba(61, 178, 189, 0.6);
+      }
+      70% {
+        box-shadow: 0 0 0 4px rgba(61, 178, 189, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(61, 178, 189, 0);
+      }
+    }
+    
+    /* Bağlantı durumu noktası */
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: var(--padding-xs);
+    }
+    
+    .connection-dot.connected {
+      background-color: var(--success-color);
+      box-shadow: 0 0 4px var(--success-color);
+      animation: pulse 2s infinite;
+    }
+    
+    .connection-dot.disconnected {
+      background-color: var(--error-color);
+      box-shadow: 0 0 4px var(--error-color);
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.6);
+      }
+      70% {
+        box-shadow: 0 0 0 5px rgba(76, 175, 80, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+      }
+    }
+    
+    /* Host ikonu */
+    .host-icon {
+      color: gold;
+      font-size: 16px;
+      margin-left: var(--padding-xs);
+      text-shadow: 0 0 2px rgba(255, 215, 0, 0.5);
+    }
+    
+    .host-icon:hover {
+      color: var(--primary-color);
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: var(--padding-md);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--heading-font);
+      font-size: 16px;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--gap-sm);
+      width: 100%;
+      position: relative;
+    }
+    
+    /* Button loading durumu */
+    button.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+    
+    button.loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    button.loading i {
+      opacity: 0;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    button:disabled {
+      background-color: #888888;
+      cursor: not-allowed;
+    }
+    
+    button.secondary {
+      background-color: var(--background-secondary);
+      color: var(--text-color);
+    }
+    
+    button.secondary:hover {
+      background-color: var(--card-background);
+    }
+    
+    button.danger {
+      background-color: var(--error-color);
+    }
+    
+    button.danger:hover {
+      background-color: #d32f2f;
+    }
+    
+    button.icon-only {
+      width: auto;
+      padding: var(--padding-xs);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: var(--padding-md);
+      box-sizing: border-box;
+      border: 1px solid var(--text-secondary);
+      border-radius: 8px;
+      background-color: var(--input-background);
+      color: var(--text-color);
+      font-family: var(--body-font);
+    }
+    
+    input[type="text"]:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    /* Toast stilleri */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: var(--padding-md);
+      background-color: rgba(50, 50, 50, 0.9);
+      color: white;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+      text-align: center;
+      max-width: 80%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .toast.error {
+      background-color: var(--error-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap-sm);
+      padding: var(--padding-md) var(--padding-lg);
+    }
+    
+    .toast.success {
+      background-color: var(--success-color);
+    }
+    
+    /* Yeniden deneme butonu için stiller */
+    .retry-button {
+      background-color: white;
+      color: var(--error-color);
+      border: none;
+      border-radius: 4px;
+      padding: 4px 12px;
+      font-family: var(--heading-font);
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: var(--gap-sm);
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+    
+    .retry-button:hover {
+      background-color: var(--background-light);
+    }
+    
+    .leave-party-container {
+      margin-top: var(--padding-xl);
+    }
+    
+    h1, h2, h3, h4, h5, h6, .heading-style {
+      font-family: var(--heading-font);
+      letter-spacing: 1px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Loading overlay ve animasyon stilleri */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap-md);
+    }
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-left-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    .loading-text {
+      color: var(--text-color);
+      font-family: var(--heading-font);
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+    
+    .loading-cancel-btn {
+      margin-top: var(--padding-md);
+      padding: var(--padding-xs) var(--padding-lg);
+      background-color: var(--background-secondary);
+      color: var(--text-color);
+      border: none;
+      border-radius: 4px;
+      font-family: var(--heading-font);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .loading-cancel-btn:hover {
+      background-color: var(--error-color);
+      color: white;
+    }
+    
+    /* Buton loading durumu için stiller */
+    button {
+      position: relative;
+    }
+    
+    button.loading {
+      color: transparent !important;
+      pointer-events: none;
+    }
+    
+    button.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    button.primary.loading::after, 
+    button.danger.loading::after {
+      border-top-color: white;
+    }
+    
+    /* Başlangıç yükleme ekranı stilleri */
+    .initial-loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      flex-direction: column;
+      padding: var(--padding-lg);
+    }
+    
+    .initial-loading-overlay .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(232, 124, 43, 0.2);
+      border-left-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: var(--padding-md);
+    }
+    
+    .initial-loading-overlay .loading-status {
+      font-family: var(--heading-font);
+      font-size: 22px;
+      color: var(--text-color);
+      text-align: center;
+      margin-bottom: var(--padding-sm);
+      letter-spacing: 1px;
+    }
+    
+    .initial-loading-overlay .loading-substatus {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 240px;
+      animation: pulse-text 2s infinite;
+    }
+    
+    .initial-loading-overlay.error .loading-status {
+      color: var(--error-color);
+    }
+    
+    .initial-loading-overlay.error .loading-spinner {
+      border-color: rgba(244, 67, 54, 0.2);
+      border-left-color: var(--error-color);
+    }
+    
+    .connection-info {
+      margin-top: var(--padding-lg);
+      background-color: var(--background-secondary);
+      padding: var(--padding-md);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 280px;
+      text-align: center;
+    }
+    
+    @keyframes pulse-text {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Bağlantı Durum İndikatörleri */
+    .connection-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    .connection-online {
+      background-color: #4CAF50;
+      box-shadow: 0 0 5px 1px rgba(76, 175, 80, 0.5);
+    }
+    
+    .connection-offline {
+      background-color: #F44336;
+      box-shadow: 0 0 5px 1px rgba(244, 67, 54, 0.5);
+    }
+    
+    .connection-connecting {
+      background-color: #FFC107;
+      box-shadow: 0 0 5px 1px rgba(255, 193, 7, 0.5);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+    
+    /* Log Paneli Ekstra Stilleri */
+    .log-entry {
+      padding: 6px 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .log-entry-time {
+      color: #888;
+      font-size: 10px;
+    }
+    
+    .log-entry-content {
+      margin-top: 3px;
+    }
+    
+    .log-type-info {
+      border-left: 3px solid #2196F3;
+    }
+    
+    .log-type-success {
+      border-left: 3px solid #4CAF50;
+    }
+    
+    .log-type-warning {
+      border-left: 3px solid #FFC107;
+    }
+    
+    .log-type-error {
+      border-left: 3px solid #F44336;
+    }
+    
+    .log-message-received {
+      background-color: rgba(33, 150, 243, 0.05);
+    }
+    
+    .log-message-sent {
+      background-color: rgba(76, 175, 80, 0.05);
+    }
+    
+    .log-connection-change {
+      background-color: rgba(255, 193, 7, 0.05);
+    }
+    
+    /* Sunucu Bilgileri Kutusu */
+    .server-info-box {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    
+    .server-info-box h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+    
+    .server-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dashed #eee;
+    }
+    
+    .server-info-label {
+      font-weight: 500;
+      color: #555;
+    }
+    
+    .server-info-value {
+      color: #333;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Debug Panel Gösterge Butonu */
+    .debug-toggle-button {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      z-index: 9999;
+      background-color: rgba(33, 150, 243, 0.8);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
+    }
+    
+    .debug-toggle-button:hover {
+      background-color: rgba(33, 150, 243, 1);
+    }
+    
+    /* Debug paneli için ek renkler */
+    .debug-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+    
+    .debug-tag-request {
+      background-color: #E1F5FE;
+      color: #0288D1;
+    }
+    
+    .debug-tag-response {
+      background-color: #E8F5E9;
+      color: #388E3C;
+    }
+    
+    .debug-tag-error {
+      background-color: #FFEBEE;
+      color: #D32F2F;
+    }
+    
+    .debug-tag-connected {
+      background-color: #E8F5E9;
+      color: #388E3C;
+    }
+    
+    .debug-tag-disconnected {
+      background-color: #FFEBEE;
+      color: #D32F2F;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ana Ekran -->
+  <div id="main-screen">
+    <header>
+      <div class="header-title">Watch Party</div>
+      <div class="header-username" id="header-username">Merhabalar, Anonim...</div>
+    </header>
+    
+    <div class="main-buttons" id="main-buttons">
+      <button id="create-party-btn" class="primary">
+        <i class="material-icons">add</i>
+        Parti Oluştur
+      </button>
+      <button id="join-party-btn" class="primary">
+        <i class="material-icons">group_add</i>
+        Partiye Katıl
+      </button>
+    </div>
+    
+    <div class="username-form" id="username-form">
+      <div class="form-group">
+        <label class="form-label">Kullanıcı Adınız:</label>
+        <input type="text" id="username-input" placeholder="Kullanıcı adınızı girin..." maxlength="20">
+      </div>
+      <div class="form-actions">
+        <button id="save-username-btn" class="primary">
+          <i class="material-icons">check</i>
+          Kaydet
+        </button>
+        <button id="cancel-username-btn" class="secondary" style="margin-top: var(--padding-xs);">
+          <i class="material-icons">close</i>
+          İptal
+        </button>
+      </div>
+    </div>
+    
+    <div class="join-party-form hidden" id="join-party-form">
+      <div class="form-group">
+        <label class="form-label">Parti Kodu:</label>
+        <input type="text" id="party-code-input" placeholder="Parti kodunu girin...">
+      </div>
+      <div class="form-actions">
+        <button id="confirm-join-btn" class="primary">
+          <i class="material-icons">check</i>
+          Katıl
+        </button>
+        <button id="cancel-join-btn" class="secondary" style="margin-top: var(--padding-xs);">
+          <i class="material-icons">close</i>
+          İptal
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Parti Ekranı -->
+  <div id="party-screen" class="party-screen">
+    <header>
+      <div class="header-title">Watch Party</div>
+      <div class="header-username party-username" id="party-username">Anonim</div>
+    </header>
+    
+    <div class="party-info">
+      <div class="party-code">
+        <div>
+          <div class="form-label">Parti Kodu:</div>
+          <div class="party-code-value" id="party-code-display">ABC123</div>
+        </div>
+        <button id="copy-code-btn" class="icon-only" title="Kodu Kopyala">
+          <i class="material-icons">content_copy</i>
+        </button>
+      </div>
+      
+      <div class="party-name">
+        <div class="form-label">Parti Adı:</div>
+        <div>
+          <span id="party-name-display">Yeni Parti</span>
+          <i class="material-icons party-name-edit" id="edit-party-name-btn">edit</i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="party-members">
+      <div class="party-members-title">
+        <i class="material-icons">people</i>
+        Katılımcılar
+      </div>
+      <div class="members-list" id="members-list">
+        <!-- Katılımcılar buraya dinamik olarak eklenecek -->
+      </div>
+    </div>
+    
+    <div class="leave-party-container">
+      <button id="leave-party-btn" class="danger">
+        <i class="material-icons">exit_to_app</i>
+        Partiden Ayrıl
+      </button>
+    </div>
+  </div>
+  
+  <!-- Parti Adı Düzenleme Formu -->
+  <div class="edit-party-name-form hidden" id="edit-party-name-form">
+    <div class="form-group">
+      <label class="form-label">Yeni Parti Adı:</label>
+      <input type="text" id="party-name-input" placeholder="Parti adını girin..." maxlength="30">
+    </div>
+    <div class="form-actions">
+      <button id="save-party-name-btn" class="primary">
+        <i class="material-icons">check</i>
+        Kaydet
+      </button>
+      <button id="cancel-party-name-btn" class="secondary" style="margin-top: var(--padding-xs);">
+        <i class="material-icons">close</i>
+        İptal
+      </button>
+    </div>
+  </div>
+  
+  <!-- Bildirim Alanı -->
+  <div id="toast" class="toast"></div>
+  
+  <!-- Başlangıç Loading Overlay -->
+  <div id="initial-loading-overlay" class="initial-loading-overlay">
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <div class="loading-status">Crunchyroll Watch Party</div>
+      <div class="loading-substatus">Sunucuya bağlanılıyor...</div>
+      <div class="server-connection-status" style="margin-top: 15px; font-size: 12px;">
+        <span id="connection-dot" class="connection-indicator connection-connecting"></span>
+        <span id="connection-text">Fly.io sunucusuyla bağlantı kuruluyor...</span>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 
